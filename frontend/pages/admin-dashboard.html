@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin Dashboard — HostelOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo"><div class="logo-icon">🏛️</div><div class="logo-text">Hostel<span>OS</span></div></div></div>
+    <div class="sidebar-user">
+      <div class="user-avatar" style="background:linear-gradient(135deg,#3B82F6,#8B5CF6)">A</div>
+      <div><div class="user-name">Admin Panel</div><div class="user-role">⚙️ Administrator</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item active" onclick="show('dash',this)"><span class="nav-icon">🏠</span>Dashboard</a>
+      <div class="nav-label">Management</div>
+      <a class="nav-item" onclick="show('students',this)"><span class="nav-icon">🎓</span>Students</a>
+      <a class="nav-item" onclick="show('rooms',this)"><span class="nav-icon">🛏️</span>Rooms &amp; Hostels</a>
+      <a class="nav-item" onclick="show('complaints',this)"><span class="nav-icon">📋</span>Complaints</a>
+      <a class="nav-item" onclick="show('staff',this)"><span class="nav-icon">👷</span>Staff</a>
+      <a class="nav-item" onclick="show('payments',this)"><span class="nav-icon">💰</span>Payments</a>
+      <div class="nav-label">Monitoring</div>
+      <a class="nav-item" onclick="show('resource',this)"><span class="nav-icon">⚡</span>Resource Usage</a>
+      <a class="nav-item" onclick="show('visitors',this)"><span class="nav-icon">👥</span>Visitor Logs</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="page-title" id="page-title">Admin Dashboard</div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('add-student-modal')">+ Add Student</button>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="p-dash">
+        <div class="cards-row cols-4">
+          <div class="stat-card c-amber"><div class="icon">🎓</div><div class="val" id="d-students">—</div><div class="lbl">Total Students</div></div>
+          <div class="stat-card c-blue"><div class="icon">🛏️</div><div class="val" id="d-rooms">—</div><div class="lbl">Total Rooms</div></div>
+          <div class="stat-card c-red"><div class="icon">📋</div><div class="val" id="d-open">—</div><div class="lbl">Open Complaints</div></div>
+          <div class="stat-card c-green"><div class="icon">💰</div><div class="val" id="d-paid">—</div><div class="lbl">Paid Payments</div></div>
+        </div>
+        <div class="cards-row cols-3">
+          <div class="stat-card c-blue"><div class="icon">👷</div><div class="val" id="d-staff">—</div><div class="lbl">Staff Members</div></div>
+          <div class="stat-card c-amber"><div class="icon">🏨</div><div class="val" id="d-hostels">—</div><div class="lbl">Hostels</div></div>
+          <div class="stat-card c-green"><div class="icon">👥</div><div class="val" id="d-visitors">—</div><div class="lbl">Visitor Logs</div></div>
+        </div>
+        <div class="cards-row cols-2">
+          <div class="section">
+            <div class="section-header"><span class="section-title">Recent Complaints</span></div>
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Priority</th><th>Status</th></tr></thead>
+            <tbody id="dash-c-tb"><tr><td colspan="5" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+          </div>
+          <div class="section">
+            <div class="section-header"><span class="section-title">Hostel Occupancy</span></div>
+            <div id="occupancy-bars"><div style="text-align:center;padding:2rem"><span class="spinner"></span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div id="p-students" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">Student Management — STUDENT Table</span><button class="btn btn-primary btn-sm" onclick="openModal('add-student-modal')">+ Add Student</button></div>
+          <div class="search-bar">
+            <input class="search-input" id="s-search" placeholder="🔍 Search name or email..." oninput="filterStudents()">
+            <select class="form-control" id="s-dept" style="width:auto" onchange="filterStudents()"><option value="">All Depts</option><option>Engineering</option></select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>StudentID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Phone</th><th>Course</th><th>Year</th><th>RoomID</th><th>Actions</th></tr></thead>
+          <tbody id="students-tb"><tr><td colspan="9" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ROOMS & HOSTELS -->
+      <div id="p-rooms" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">HOSTEL Table</span></div>
+          <div class="table-wrap"><table><thead><tr><th>HostelID</th><th>HostelName</th><th>Block</th><th>Street</th><th>City</th><th>State</th><th>Zip</th><th>Total Rooms</th><th>Occupied</th></tr></thead>
+          <tbody id="hostels-tb"><tr><td colspan="9" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">ROOM Table</span></div>
+          <div class="search-bar">
+            <select class="form-control" id="r-status" style="width:auto" onchange="loadRooms()"><option value="">All Status</option><option>Available</option><option>Occupied</option></select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>RoomID</th><th>RoomNumber</th><th>Floor</th><th>Capacity</th><th>Room_Type</th><th>Status</th><th>Monthly_Rent</th><th>HostelID</th></tr></thead>
+          <tbody id="rooms-tb"><tr><td colspan="8" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- COMPLAINTS -->
+      <div id="p-complaints" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">COMPLAINT Table — All Records</span></div>
+          <div class="search-bar">
+            <select class="form-control" id="c-status-f" style="width:auto" onchange="loadComplaints()"><option value="">All Status</option><option>Open</option><option>Closed</option></select>
+            <select class="form-control" id="c-pri-f" style="width:auto" onchange="loadComplaints()"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Room</th><th>Category</th><th>Description</th><th>Priority</th><th>Status</th><th>Staff</th><th>Assign</th></tr></thead>
+          <tbody id="complaints-tb"><tr><td colspan="9" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div id="p-staff" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">STAFF Table</span><button class="btn btn-primary btn-sm" onclick="openModal('add-staff-modal')">+ Add Staff</button></div>
+          <div class="table-wrap"><table><thead><tr><th>StaffID</th><th>First Name</th><th>Last Name</th><th>Role</th><th>Email</th><th>Contact</th><th>Salary</th><th>Hire_Date</th></tr></thead>
+          <tbody id="staff-tb"><tr><td colspan="8" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+          <div id="staff-summary" style="margin-top:1rem;padding:.75rem 1rem;background:var(--surface2);border-radius:8px;display:flex;gap:2rem;"></div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS -->
+      <div id="p-payments" class="hidden">
+        <div class="cards-row cols-3" id="pay-summary-cards"></div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">PAYMENT Table</span></div>
+          <div class="search-bar">
+            <select class="form-control" id="p-status-f" style="width:auto" onchange="loadPayments()"><option value="">All Status</option><option>Paid</option><option>Pending</option></select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>PaymentID</th><th>Student</th><th>Amount</th><th>PaymentDate</th><th>PaymentType</th><th>Status</th><th>Transaction_ID</th></tr></thead>
+          <tbody id="payments-tb"><tr><td colspan="7" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- RESOURCE USAGE -->
+      <div id="p-resource" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">RESOURCE_USAGE — All Rooms</span></div>
+          <div class="table-wrap"><table><thead><tr><th>UsageID</th><th>RoomID</th><th>Room No</th><th>ElectricityUnits</th><th>WaterUnits</th><th>Internet_Usage</th><th>RecordedDate</th></tr></thead>
+          <tbody id="res-tb"><tr><td colspan="7" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- VISITOR LOGS -->
+      <div id="p-visitors" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">VISITOR Table</span></div>
+          <div class="table-wrap"><table><thead><tr><th>VisitorID</th><th>Name</th><th>Contact</th><th>Visit_Date</th><th>Relation_to_Student</th></tr></thead>
+          <tbody id="visitors-tb"><tr><td colspan="5" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">VISITOR_LOG Table</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Log_ID</th><th>Visitor</th><th>Student</th><th>Entry_Time</th><th>Exit_Time</th></tr></thead>
+          <tbody id="vlogs-tb"><tr><td colspan="5" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal-overlay" id="add-student-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add New Student</div><button class="close-btn" onclick="closeModal('add-student-modal')">×</button></div>
+    <div id="add-s-alert"></div>
+    <div class="info-grid">
+      <div class="form-group"><label class="form-label">StudentID</label><input class="form-control" id="ns-id" type="number" placeholder="Auto"></div>
+      <div class="form-group"><label class="form-label">First Name *</label><input class="form-control" id="ns-fname"></div>
+      <div class="form-group"><label class="form-label">Last Name *</label><input class="form-control" id="ns-lname"></div>
+      <div class="form-group"><label class="form-label">Email *</label><input class="form-control" id="ns-email" type="email"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="ns-phone"></div>
+      <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-control" id="ns-dob" type="date"></div>
+      <div class="form-group"><label class="form-label">Course</label><input class="form-control" id="ns-course" placeholder="CSE"></div>
+      <div class="form-group"><label class="form-label">Department</label><input class="form-control" id="ns-dept" placeholder="Engineering"></div>
+      <div class="form-group"><label class="form-label">Year</label><input class="form-control" id="ns-year" type="number" min="1" max="4"></div>
+      <div class="form-group"><label class="form-label">RoomID (FK)</label><select class="form-control" id="ns-room"><option value="">— Select Room —</option></select></div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:1rem">
+      <button class="btn btn-primary" style="flex:1" id="save-student-btn" onclick="saveStudent()">INSERT Student →</button>
+      <button class="btn btn-secondary" onclick="closeModal('add-student-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD STAFF MODAL -->
+<div class="modal-overlay" id="add-staff-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add New Staff</div><button class="close-btn" onclick="closeModal('add-staff-modal')">×</button></div>
+    <div id="add-st-alert"></div>
+    <div class="info-grid">
+      <div class="form-group"><label class="form-label">First Name *</label><input class="form-control" id="nst-fname"></div>
+      <div class="form-group"><label class="form-label">Last Name</label><input class="form-control" id="nst-lname"></div>
+      <div class="form-group"><label class="form-label">Role *</label><select class="form-control" id="nst-role"><option>Electrician</option><option>Plumber</option><option>Cleaner</option><option>Security</option><option>Warden</option></select></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="nst-email" type="email"></div>
+      <div class="form-group"><label class="form-label">Contact</label><input class="form-control" id="nst-contact"></div>
+      <div class="form-group"><label class="form-label">Salary</label><input class="form-control" id="nst-salary" type="number"></div>
+      <div class="form-group"><label class="form-label">Hire Date</label><input class="form-control" id="nst-hire" type="date"></div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:1rem">
+      <button class="btn btn-primary" style="flex:1" onclick="saveStaff()">INSERT Staff →</button>
+      <button class="btn btn-secondary" onclick="closeModal('add-staff-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'http://localhost:5000/api';
+let allStudents = [];
+
+window.onload = () => {
+  if (sessionStorage.getItem('role') !== 'admin') { location.href='login.html'; return; }
+  loadDash();
+  loadAvailableRooms();
+};
+
+const panels = ['dash','students','rooms','complaints','staff','payments','resource','visitors'];
+const titles  = { dash:'Admin Dashboard', students:'Student Management', rooms:'Rooms & Hostels', complaints:'Complaint Management', staff:'Staff Management', payments:'Payment Overview', resource:'Resource Usage', visitors:'Visitor Logs' };
+
+function show(panel, el) {
+  panels.forEach(p => document.getElementById('p-'+p).classList.add('hidden'));
+  document.getElementById('p-'+panel).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = titles[panel];
+  const loaders = { students: loadStudents, rooms: () => { loadHostels(); loadRooms(); }, complaints: loadComplaints, staff: loadStaff, payments: loadPayments, resource: loadResources, visitors: () => { loadVisitors(); loadVisitorLogs(); } };
+  if (loaders[panel]) loaders[panel]();
+}
+
+function badge(val) {
+  const map = { Open:'b-open', Closed:'b-closed', Pending:'b-pending', Paid:'b-paid', Occupied:'b-occupied', Available:'b-available', High:'b-high', Medium:'b-medium', Low:'b-low' };
+  return `<span class="badge ${map[val]||''}">${val||'—'}</span>`;
+}
+async function api(path) { const r=await fetch(BASE+path); return r.json(); }
+async function post(path,body) { const r=await fetch(BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); return r.json(); }
+async function del(path) { const r=await fetch(BASE+path,{method:'DELETE'}); return r.json(); }
+
+// DASHBOARD
+async function loadDash() {
+  const [s,r,c,p,st,h,v] = await Promise.all([
+    api('/students'), api('/rooms'), api('/complaints?status=Open'),
+    api('/payments?status=Paid'), api('/staff'), api('/hostels'), api('/visitor-logs')
+  ]);
+  document.getElementById('d-students').textContent = s.count || 0;
+  document.getElementById('d-rooms').textContent    = r.data?.length || 0;
+  document.getElementById('d-open').textContent     = c.count || 0;
+  document.getElementById('d-paid').textContent     = p.count || 0;
+  document.getElementById('d-staff').textContent    = st.data?.length || 0;
+  document.getElementById('d-hostels').textContent  = h.data?.length || 0;
+  document.getElementById('d-visitors').textContent = v.data?.length || 0;
+
+  const allC = await api('/complaints');
+  document.getElementById('dash-c-tb').innerHTML = (allC.data||[]).slice(0,5).map(c =>
+    `<tr><td class="td-main">${c.ComplaintID}</td><td>${c.StudentName||'—'}</td><td>${c.Category}</td><td>${badge(c.Priority)}</td><td>${badge(c.Status)}</td></tr>`
+  ).join('');
+
+  document.getElementById('occupancy-bars').innerHTML = (h.data||[]).map(hst =>
+    `<div class="res-row"><div class="res-lbl" style="width:130px">${hst.HostelName.split(' ')[0]}</div><div style="flex:1"><div class="prog-bar"><div class="prog-fill" style="width:${hst.Total_Rooms?Math.round(hst.Occupied_Rooms/hst.Total_Rooms*100):0}%"></div></div></div><div class="res-val">${hst.Occupied_Rooms||0}/${hst.Total_Rooms||0}</div></div>`
+  ).join('');
+}
+
+// STUDENTS
+async function loadStudents() {
+  const data = await api('/students');
+  allStudents = data.data || [];
+  renderStudents(allStudents);
+}
+function renderStudents(list) {
+  document.getElementById('students-tb').innerHTML = list.map(s =>
+    `<tr><td class="td-main">${s.StudentID}</td><td>${s.First_Name}</td><td>${s.Last_Name}</td><td>${s.Email}</td><td>${s.Phone||'—'}</td><td>${s.Course}</td><td>${s.Year}</td><td>${s.RoomID||'—'}</td>
+     <td><button class="btn btn-danger btn-xs" onclick="deleteStudent(${s.StudentID})">Del</button></td></tr>`
+  ).join('') || `<tr><td colspan="9" style="text-align:center;color:var(--text3)">No students found</td></tr>`;
+}
+function filterStudents() {
+  const q = document.getElementById('s-search').value.toLowerCase();
+  const d = document.getElementById('s-dept').value;
+  renderStudents(allStudents.filter(s =>
+    (!q || (s.First_Name+s.Last_Name+s.Email).toLowerCase().includes(q)) && (!d || s.Department===d)
+  ));
+}
+async function deleteStudent(id) {
+  if (!confirm('Delete student ' + id + '?')) return;
+  await del('/students/' + id);
+  loadStudents();
+}
+
+// HOSTELS
+async function loadHostels() {
+  const data = await api('/hostels');
+  document.getElementById('hostels-tb').innerHTML = (data.data||[]).map(h =>
+    `<tr><td class="td-main">${h.HostelID}</td><td>${h.HostelName}</td><td>${h.Block}</td><td>${h.Street}</td><td>${h.City}</td><td>${h.State}</td><td>${h.Zip}</td><td>${h.Total_Rooms||0}</td><td>${h.Occupied_Rooms||0}</td></tr>`
+  ).join('');
+}
+
+// ROOMS
+async function loadRooms() {
+  const status = document.getElementById('r-status')?.value || '';
+  const data = await api('/rooms' + (status?`?status=${status}`:''));
+  document.getElementById('rooms-tb').innerHTML = (data.data||[]).map(r =>
+    `<tr><td class="td-main">${r.RoomID}</td><td>${r.RoomNumber}</td><td>${r.Floor}</td><td>${r.Capacity}</td><td>${r.Room_Type}</td><td>${badge(r.Status)}</td><td>₹${Number(r.Monthly_Rent).toLocaleString()}</td><td>${r.HostelID}</td></tr>`
+  ).join('');
+}
+
+// COMPLAINTS
+async function loadComplaints() {
+  const s = document.getElementById('c-status-f')?.value || '';
+  const p = document.getElementById('c-pri-f')?.value || '';
+  let q = '/complaints?';
+  if (s) q += `status=${s}&`; if (p) q += `priority=${p}`;
+  const data = await api(q);
+  const staffData = await api('/staff');
+  const staffList = staffData.data || [];
+  document.getElementById('complaints-tb').innerHTML = (data.data||[]).map(c =>
+    `<tr><td class="td-main">${c.ComplaintID}</td><td>${c.StudentName||'—'}</td><td>${c.RoomNumber||'—'}</td><td>${c.Category}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.Description}</td><td>${badge(c.Priority)}</td><td>${badge(c.Status)}</td><td>${c.StaffName||'Unassigned'}</td>
+     <td><select class="form-control" style="padding:.28rem .5rem;font-size:.75rem;width:130px" onchange="assignStaff(${c.ComplaintID},this.value)">
+       <option value="">Assign...</option>${staffList.map(st=>`<option value="${st.StaffID}" ${c.AssignedStaffID===st.StaffID?'selected':''}>${st.First_Name} (${st.Role})</option>`).join('')}
+     </select></td></tr>`
+  ).join('') || `<tr><td colspan="9" style="text-align:center;color:var(--text3)">No complaints</td></tr>`;
+}
+async function assignStaff(complaintId, staffId) {
+  if (!staffId) return;
+  await fetch(`${BASE}/complaints/${complaintId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ AssignedStaffID: parseInt(staffId) }) });
+}
+
+// STAFF
+async function loadStaff() {
+  const data = await api('/staff');
+  const list = data.data || [];
+  document.getElementById('staff-tb').innerHTML = list.map(s =>
+    `<tr><td class="td-main">${s.StaffID}</td><td>${s.First_Name}</td><td>${s.Last_Name}</td><td>${s.Role}</td><td>${s.Email}</td><td>${s.Contact}</td><td>₹${Number(s.Salary).toLocaleString()}</td><td>${s.Hire_Date?.split('T')[0]}</td></tr>`
+  ).join('');
+  const total = list.reduce((a,s) => a + parseFloat(s.Salary||0), 0);
+  const avg   = list.length ? total/list.length : 0;
+  document.getElementById('staff-summary').innerHTML = `
+    <div><span class="text-xs text-muted">TOTAL SALARY</span><br><span class="fw-7 text-accent" style="font-size:1.1rem">₹${total.toLocaleString()}</span></div>
+    <div><span class="text-xs text-muted">AVG SALARY</span><br><span class="fw-7" style="font-size:1.1rem">₹${Math.round(avg).toLocaleString()}</span></div>
+    <div><span class="text-xs text-muted">TOTAL STAFF</span><br><span class="fw-7" style="font-size:1.1rem">${list.length}</span></div>`;
+}
+
+// PAYMENTS
+async function loadPayments() {
+  const status = document.getElementById('p-status-f')?.value || '';
+  const [allData, paidData, pendData] = await Promise.all([
+    api('/payments' + (status?`?status=${status}`:'')),
+    api('/payments?status=Paid'), api('/payments?status=Pending')
+  ]);
+  const paid = paidData.data || [], pend = pendData.data || [];
+  const totalPaid = paid.reduce((a,p)=>a+parseFloat(p.Amount||0),0);
+  document.getElementById('pay-summary-cards').innerHTML = `
+    <div class="stat-card c-green"><div class="icon">✅</div><div class="val">${paid.length}</div><div class="lbl">Paid</div></div>
+    <div class="stat-card c-red"><div class="icon">⏳</div><div class="val">${pend.length}</div><div class="lbl">Pending</div></div>
+    <div class="stat-card c-amber"><div class="icon">💰</div><div class="val">₹${(totalPaid/1000).toFixed(0)}K</div><div class="lbl">Total Collected</div></div>`;
+  document.getElementById('payments-tb').innerHTML = (allData.data||[]).map(p =>
+    `<tr><td class="td-main">${p.PaymentID}</td><td>${p.StudentName||'—'}</td><td>₹${Number(p.Amount).toLocaleString()}</td><td>${p.PaymentDate?.split('T')[0]}</td><td>${p.PaymentType}</td><td>${badge(p.Status)}</td><td class="mono text-xs">${p.Transaction_ID}</td></tr>`
+  ).join('');
+}
+
+// RESOURCES
+async function loadResources() {
+  const data = await api('/resource-usage');
+  document.getElementById('res-tb').innerHTML = (data.data||[]).map(u =>
+    `<tr><td class="td-main">${u.UsageID}</td><td>${u.RoomID}</td><td>${u.RoomNumber||'—'}</td><td>${u.ElectricityUnits}</td><td>${u.WaterUnits}</td><td>${u.Internet_Usage}</td><td>${u.RecordedDate?.split('T')[0]}</td></tr>`
+  ).join('');
+}
+
+// VISITORS
+async function loadVisitors() {
+  const data = await api('/visitors');
+  document.getElementById('visitors-tb').innerHTML = (data.data||[]).map(v =>
+    `<tr><td class="td-main">${v.VisitorID}</td><td>${v.Name}</td><td>${v.Contact}</td><td>${v.Visit_Date?.split('T')[0]}</td><td>${v.Relation_to_Student}</td></tr>`
+  ).join('');
+}
+async function loadVisitorLogs() {
+  const data = await api('/visitor-logs');
+  document.getElementById('vlogs-tb').innerHTML = (data.data||[]).map(v =>
+    `<tr><td class="td-main">${v.Log_ID}</td><td>${v.VisitorName||'—'}</td><td>${v.StudentName||'—'}</td><td>${v.Entry_Time?.replace('T',' ').slice(0,16)}</td><td>${v.Exit_Time?.replace('T',' ').slice(0,16)||'—'}</td></tr>`
+  ).join('');
+}
+
+// SAVE STUDENT
+async function loadAvailableRooms() {
+  const data = await api('/rooms?status=Available');
+  const sel = document.getElementById('ns-room');
+  (data.data||[]).forEach(r => { const o=document.createElement('option'); o.value=r.RoomID; o.textContent=`${r.RoomID} — ${r.RoomNumber} (${r.Room_Type})`; sel.appendChild(o); });
+}
+async function saveStudent() {
+  const btn = document.getElementById('save-student-btn');
+  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
+  const body = {
+    StudentID: document.getElementById('ns-id').value || undefined,
+    First_Name: document.getElementById('ns-fname').value,
+    Last_Name:  document.getElementById('ns-lname').value,
+    Email:      document.getElementById('ns-email').value,
+    Phone:      document.getElementById('ns-phone').value,
+    Date_of_Birth: document.getElementById('ns-dob').value,
+    Course:     document.getElementById('ns-course').value,
+    Department: document.getElementById('ns-dept').value,
+    Year:       document.getElementById('ns-year').value,
+    RoomID:     document.getElementById('ns-room').value || undefined
+  };
+  const res = await post('/students', body);
+  btn.innerHTML = 'INSERT Student →'; btn.disabled = false;
+  if (res.success) {
+    document.getElementById('add-s-alert').innerHTML = `<div class="alert alert-success">✅ Student added! ID: ${res.StudentID}</div>`;
+    setTimeout(() => { closeModal('add-student-modal'); loadStudents(); }, 1500);
+  } else {
+    document.getElementById('add-s-alert').innerHTML = `<div class="alert alert-error">❌ ${res.error}</div>`;
+  }
+}
+async function saveStaff() {
+  const body = { First_Name: document.getElementById('nst-fname').value, Last_Name: document.getElementById('nst-lname').value, Role: document.getElementById('nst-role').value, Email: document.getElementById('nst-email').value, Contact: document.getElementById('nst-contact').value, Salary: document.getElementById('nst-salary').value, Hire_Date: document.getElementById('nst-hire').value };
+  const res = await post('/staff', body);
+  if (res.success) { closeModal('add-staff-modal'); loadStaff(); }
+  else document.getElementById('add-st-alert').innerHTML = `<div class="alert alert-error">❌ ${res.error}</div>`;
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open'); });
+function logout() { sessionStorage.clear(); location.href='login.html'; }
+</script>
+</body>
+</html>

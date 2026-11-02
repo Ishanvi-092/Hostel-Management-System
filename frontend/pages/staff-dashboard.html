@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Staff Dashboard — HostelOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+<div class="dash-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo"><div class="logo-icon">🏛️</div><div class="logo-text">Hostel<span>OS</span></div></div></div>
+    <div class="sidebar-user">
+      <div class="user-avatar" style="background:linear-gradient(135deg,#10B981,#3B82F6)" id="st-avatar">R</div>
+      <div><div class="user-name" id="st-name">Loading...</div><div class="user-role">🔧 Staff</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">My Work</div>
+      <a class="nav-item active" onclick="show('dash',this)"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a class="nav-item" onclick="show('complaints',this)"><span class="nav-icon">📋</span>My Complaints</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="page-title" id="page-title">Staff Dashboard</div>
+      <span class="badge b-open" id="role-badge">Loading...</span>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="p-dash">
+        <div class="cards-row cols-3">
+          <div class="stat-card c-amber"><div class="icon">📋</div><div class="val" id="d-total">—</div><div class="lbl">Assigned Complaints</div></div>
+          <div class="stat-card c-green"><div class="icon">✅</div><div class="val" id="d-closed">—</div><div class="lbl">Resolved</div></div>
+          <div class="stat-card c-blue"><div class="icon">⏳</div><div class="val" id="d-open">—</div><div class="lbl">Still Open</div></div>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">My Assigned Complaints</span></div>
+          <div class="table-wrap"><table><thead><tr><th>ComplaintID</th><th>Student</th><th>Room</th><th>Category</th><th>Description</th><th>Priority</th><th>Status</th></tr></thead>
+          <tbody id="dash-c-tb"><tr><td colspan="7" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- MY COMPLAINTS -->
+      <div id="p-complaints" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">Update Complaint Status</span></div>
+          <div id="update-alert"></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>ID</th><th>Category</th><th>Student</th><th>Room</th><th>Description</th><th>Priority</th><th>Current Status</th><th>Resolution Details</th><th>Action</th></tr></thead>
+            <tbody id="complaints-tb"><tr><td colspan="9" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'http://localhost:5000/api';
+let user = null;
+
+window.onload = async () => {
+  const stored = sessionStorage.getItem('user');
+  const role   = sessionStorage.getItem('role');
+  if (!stored || role !== 'staff') { location.href = 'login.html'; return; }
+  user = JSON.parse(stored);
+  document.getElementById('st-name').textContent   = user.First_Name + ' ' + user.Last_Name;
+  document.getElementById('st-avatar').textContent = user.First_Name?.[0] || 'S';
+  document.getElementById('role-badge').textContent = user.Role + ' • ID: ' + user.StaffID;
+  loadDash();
+};
+
+function show(panel, el) {
+  ['dash','complaints'].forEach(p => document.getElementById('p-'+p).classList.add('hidden'));
+  document.getElementById('p-'+panel).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = { dash:'Staff Dashboard', complaints:'My Complaints' };
+  document.getElementById('page-title').textContent = titles[panel];
+  if (panel === 'complaints') loadComplaints();
+}
+
+function badge(val) {
+  const map = { Open:'b-open', Closed:'b-closed', High:'b-high', Medium:'b-medium', Low:'b-low' };
+  return `<span class="badge ${map[val]||''}">${val}</span>`;
+}
+
+async function loadDash() {
+  const data = await fetch(`${BASE}/staff/${user.StaffID}/complaints`).then(r=>r.json());
+  const list = data.data || [];
+  const open   = list.filter(c=>c.Status==='Open').length;
+  const closed = list.filter(c=>c.Status==='Closed').length;
+  document.getElementById('d-total').textContent  = list.length;
+  document.getElementById('d-closed').textContent = closed;
+  document.getElementById('d-open').textContent   = open;
+  document.getElementById('dash-c-tb').innerHTML  = list.map(c =>
+    `<tr><td class="td-main">${c.ComplaintID}</td><td>${c.StudentName||'—'}</td><td>${c.RoomNumber||'—'}</td><td>${c.Category}</td><td>${c.Description}</td><td>${badge(c.Priority)}</td><td>${badge(c.Status)}</td></tr>`
+  ).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--text3)">No complaints assigned yet</td></tr>`;
+}
+
+async function loadComplaints() {
+  const data = await fetch(`${BASE}/staff/${user.StaffID}/complaints`).then(r=>r.json());
+  document.getElementById('complaints-tb').innerHTML = (data.data||[]).map(c =>
+    `<tr>
+      <td class="td-main">${c.ComplaintID}</td>
+      <td>${c.Category}</td>
+      <td>${c.StudentName||'—'}</td>
+      <td>${c.RoomNumber||'—'}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.Description}</td>
+      <td>${badge(c.Priority)}</td>
+      <td><span class="badge ${c.Status==='Closed'?'b-closed':'b-open'}" id="status-${c.ComplaintID}">${c.Status}</span></td>
+      <td><input class="form-control" id="res-${c.ComplaintID}" placeholder="Enter resolution..." style="min-width:180px;padding:.32rem .7rem" ${c.Status==='Closed'?'disabled':''}></td>
+      <td>${c.Status==='Open' ? `<button class="btn btn-primary btn-xs" onclick="resolve(${c.ComplaintID})">Mark Closed</button>` : '<span class="text-muted text-xs">Done ✓</span>'}</td>
+     </tr>`
+  ).join('') || `<tr><td colspan="9" style="text-align:center;color:var(--text3)">No complaints assigned</td></tr>`;
+}
+
+async function resolve(id) {
+  const res = document.getElementById('res-'+id)?.value.trim();
+  if (!res) { alert('Please enter resolution details before closing.'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  const r = await fetch(`${BASE}/complaints/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ Status: 'Closed', Resolution_Date: today, Description: res })
+  }).then(r=>r.json());
+  if (r.success) {
+    document.getElementById('update-alert').innerHTML = `<div class="alert alert-success">✅ Complaint #${id} marked as Closed!</div>`;
+    setTimeout(() => document.getElementById('update-alert').innerHTML = '', 3000);
+    loadComplaints(); loadDash();
+  } else {
+    document.getElementById('update-alert').innerHTML = `<div class="alert alert-error">❌ ${r.error}</div>`;
+  }
+}
+
+function logout() { sessionStorage.clear(); location.href = 'login.html'; }
+</script>
+</body>
+</html>

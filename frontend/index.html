@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>HostelOS — Smart Hostel Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{--bg:#0A0E1A;--surface:#111827;--surface2:#1A2235;--border:#1E3A5F;--accent:#F59E0B;--accent2:#3B82F6;--text:#F0F4FF;--text2:#94A3B8;--text3:#64748B;}
+    body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
+    .landing{background:linear-gradient(135deg,#0A0E1A,#111827,#0D1B2E);min-height:100vh;display:flex;flex-direction:column;}
+    nav{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 3rem;border-bottom:1px solid rgba(30,58,95,.5);}
+    .logo{display:flex;align-items:center;gap:.7rem;}
+    .logo-icon{width:34px;height:34px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+    .logo-text{font-size:.95rem;font-weight:700;}.logo-text span{color:var(--accent);}
+    .btn{padding:.55rem 1.4rem;border-radius:8px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:.875rem;font-weight:500;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;}
+    .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}.btn-ghost:hover{color:var(--text);border-color:var(--accent);}
+    .btn-primary{background:var(--accent);color:#000;font-weight:600;}.btn-primary:hover{background:#FBBF24;}
+    .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3.5rem 2rem;}
+    .badge{display:inline-flex;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--accent);padding:.38rem 1rem;border-radius:999px;font-size:.78rem;font-weight:600;margin-bottom:2rem;}
+    h1{font-size:clamp(2rem,4.5vw,3.8rem);font-weight:700;line-height:1.1;max-width:780px;margin-bottom:1.4rem;}
+    h1 span{color:var(--accent);}
+    p{font-size:1rem;color:var(--text2);max-width:520px;line-height:1.7;margin-bottom:2.5rem;}
+    .hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:3rem;}
+    .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:640px;}
+    .role-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.4rem;cursor:pointer;transition:all .25s;text-align:center;text-decoration:none;color:var(--text);}
+    .role-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 28px rgba(245,158,11,.1);}
+    .role-card .icon{font-size:1.8rem;margin-bottom:.65rem;}
+    .role-card h3{font-size:.9rem;font-weight:700;margin-bottom:.2rem;}
+    .role-card p{font-size:.76rem;color:var(--text3);}
+    .stats-bar{display:flex;justify-content:center;gap:3rem;padding:1.8rem 3rem;border-top:1px solid var(--border);background:rgba(17,24,39,.5);}
+    .stat{text-align:center;}.stat-n{font-size:1.4rem;font-weight:700;color:var(--accent);}
+    .stat-l{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;}
+  </style>
+</head>
+<body>
+<div class="landing">
+  <nav>
+    <div class="logo"><div class="logo-icon">🏛️</div><div class="logo-text">Hostel<span>OS</span></div></div>
+    <div style="display:flex;gap:1rem;">
+      <a href="pages/login.html" class="btn btn-ghost">Sign In</a>
+      <a href="pages/login.html" class="btn btn-primary">Get Started →</a>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="badge">⚡ 21CSC205P — DBMS Mini Project</div>
+    <h1>Smart Hostel <span>Resource &amp; Complaint</span> Management System</h1>
+    <p>A centralized database-driven platform connecting directly to MySQL. Full CRUD on all 11 tables.</p>
+    <div class="hero-btns">
+      <a href="pages/login.html?role=student" class="btn btn-primary" style="padding:.8rem 2rem">Login as Student</a>
+      <a href="pages/login.html?role=admin" class="btn btn-ghost" style="padding:.8rem 2rem">Admin Portal</a>
+    </div>
+    <div class="roles">
+      <a class="role-card" href="pages/login.html?role=student"><div class="icon">🎓</div><h3>Student</h3><p>View room, raise complaints, payments</p></a>
+      <a class="role-card" href="pages/login.html?role=admin"><div class="icon">⚙️</div><h3>Admin</h3><p>Manage all hostel operations</p></a>
+      <a class="role-card" href="pages/login.html?role=staff"><div class="icon">🔧</div><h3>Staff</h3><p>Handle assigned complaints</p></a>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-n">5</div><div class="stat-l">Hostels</div></div>
+    <div class="stat"><div class="stat-n">5</div><div class="stat-l">Students</div></div>
+    <div class="stat"><div class="stat-n">5</div><div class="stat-l">Staff</div></div>
+    <div class="stat"><div class="stat-n">5</div><div class="stat-l">Complaints</div></div>
+    <div class="stat"><div class="stat-n">11</div><div class="stat-l">DB Tables</div></div>
+  </div>
+</div>
+</body>
+</html>

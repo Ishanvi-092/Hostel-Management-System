@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Student Dashboard — HostelOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo"><div class="logo-icon">🏛️</div><div class="logo-text">Hostel<span>OS</span></div></div></div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="s-avatar">A</div>
+      <div><div class="user-name" id="s-name">Loading...</div><div class="user-role">🎓 Student</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Overview</div>
+      <a class="nav-item active" onclick="show('dash',this)"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a class="nav-item" onclick="show('profile',this)"><span class="nav-icon">👤</span>My Profile</a>
+      <div class="nav-label">Hostel</div>
+      <a class="nav-item" onclick="show('room',this)"><span class="nav-icon">🛏️</span>Room Details</a>
+      <a class="nav-item" onclick="show('fee',this)"><span class="nav-icon">💳</span>Hostel Fee</a>
+      <div class="nav-label">Services</div>
+      <a class="nav-item" onclick="show('complaint',this)"><span class="nav-icon">📋</span>Complaints</a>
+      <a class="nav-item" onclick="show('payment',this)"><span class="nav-icon">💰</span>Payments</a>
+      <a class="nav-item" onclick="show('resource',this)"><span class="nav-icon">⚡</span>Resource Usage</a>
+      <a class="nav-item" onclick="show('visitor',this)"><span class="nav-icon">👥</span>Visitor Log</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <span class="badge b-open" id="room-badge">Loading room...</span>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="p-dash">
+        <div id="dash-alert"></div>
+        <div class="cards-row cols-4" id="dash-cards">
+          <div class="stat-card c-amber"><div class="icon">🛏️</div><div class="val" id="d-room">—</div><div class="lbl">Room Number</div></div>
+          <div class="stat-card c-blue"><div class="icon">📋</div><div class="val" id="d-complaints">—</div><div class="lbl">Active Complaints</div></div>
+          <div class="stat-card c-green"><div class="icon">💰</div><div class="val" id="d-payment">—</div><div class="lbl">Last Payment</div></div>
+          <div class="stat-card c-red"><div class="icon">👥</div><div class="val" id="d-visitors">—</div><div class="lbl">Total Visitors</div></div>
+        </div>
+        <div class="cards-row cols-2">
+          <div class="section">
+            <div class="section-header"><span class="section-title">Recent Complaints</span></div>
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Category</th><th>Priority</th><th>Status</th></tr></thead>
+            <tbody id="dash-complaints-tb"><tr><td colspan="4" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+          </div>
+          <div class="section">
+            <div class="section-header"><span class="section-title">Payment History</span></div>
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Amount</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody id="dash-payments-tb"><tr><td colspan="4" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="p-profile" class="hidden">
+        <div class="section">
+          <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem">
+            <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#EF4444);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:#000" id="pro-avatar">A</div>
+            <div><div style="font-size:1.35rem;font-weight:700" id="pro-fullname">—</div><div class="text-muted text-sm" id="pro-sub">StudentID: — </div></div>
+          </div>
+          <hr class="divider">
+          <div class="info-grid" id="pro-grid"><div style="text-align:center;padding:2rem"><span class="spinner"></span></div></div>
+        </div>
+      </div>
+
+      <!-- ROOM -->
+      <div id="p-room" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">My Room Details</span><span class="badge b-occupied" id="room-status-badge">—</span></div>
+          <div class="info-grid" id="room-grid"><div style="text-align:center;padding:2rem"><span class="spinner"></span></div></div>
+          <hr class="divider">
+          <div class="section-title mb-2">Bed Allocation</div>
+          <div class="table-wrap"><table><thead><tr><th>Bed No</th><th>Type</th><th>Status</th></tr></thead>
+          <tbody id="beds-tb"><tr><td colspan="3" style="text-align:center"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- FEE -->
+      <div id="p-fee" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">Hostel Fee Structure</span></div>
+          <div class="table-wrap"><table><thead><tr><th>FeeID</th><th>Fee Type</th><th>Amount</th><th>Due Date</th><th>Fine</th></tr></thead>
+          <tbody id="fee-tb"><tr><td colspan="5" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- COMPLAINT -->
+      <div id="p-complaint" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">Raise a Complaint</span></div>
+          <div id="c-alert"></div>
+          <div class="info-grid">
+            <div class="form-group"><label class="form-label">StudentID (auto)</label><input class="form-control" id="c-sid" readonly></div>
+            <div class="form-group"><label class="form-label">RoomID (auto)</label><input class="form-control" id="c-rid" readonly></div>
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-control" id="c-cat"><option>Electricity</option><option>Water</option><option>Cleaning</option><option>Internet</option><option>Furniture</option><option>Other</option></select></div>
+            <div class="form-group"><label class="form-label">Priority</label>
+              <select class="form-control" id="c-pri"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+          </div>
+          <div class="form-group"><label class="form-label">Description</label><textarea class="form-control" id="c-desc" placeholder="Describe your issue..."></textarea></div>
+          <div class="form-group"><label class="form-label">Status (default)</label><input class="form-control" value="Open" readonly></div>
+          <button class="btn btn-primary" id="c-btn" onclick="raiseComplaint()">Submit Complaint →</button>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">My Complaints</span><span class="badge b-open" id="c-count-badge">Loading...</span></div>
+          <div class="table-wrap"><table><thead><tr><th>ComplaintID</th><th>Category</th><th>Description</th><th>DateFiled</th><th>Priority</th><th>Status</th></tr></thead>
+          <tbody id="my-complaints-tb"><tr><td colspan="6" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PAYMENT -->
+      <div id="p-payment" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">Make a Payment</span></div>
+          <div id="p-alert"></div>
+          <div class="info-grid">
+            <div class="form-group"><label class="form-label">StudentID (auto)</label><input class="form-control" id="p-sid" readonly></div>
+            <div class="form-group"><label class="form-label">Amount (₹)</label><input class="form-control" id="p-amt" type="number" placeholder="45000"></div>
+            <div class="form-group"><label class="form-label">Payment Type</label>
+              <select class="form-control" id="p-type"><option>Online</option><option>UPI</option><option>Card</option><option>Cash</option></select></div>
+            <div class="form-group"><label class="form-label">Status (default)</label><input class="form-control" value="Pending" readonly></div>
+          </div>
+          <button class="btn btn-primary" id="p-btn" onclick="makePayment()">Submit Payment →</button>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">Payment History</span></div>
+          <div class="table-wrap"><table><thead><tr><th>PaymentID</th><th>Amount</th><th>PaymentDate</th><th>PaymentType</th><th>Status</th><th>Transaction_ID</th></tr></thead>
+          <tbody id="pay-tb"><tr><td colspan="6" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- RESOURCE -->
+      <div id="p-resource" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">Resource Usage — My Room</span></div>
+          <div id="res-bars"><div style="text-align:center;padding:2rem"><span class="spinner"></span></div></div>
+        </div>
+        <div class="section">
+          <div class="section-header"><span class="section-title">RESOURCE_USAGE Records</span></div>
+          <div class="table-wrap"><table><thead><tr><th>UsageID</th><th>RoomID</th><th>ElectricityUnits</th><th>WaterUnits</th><th>Internet_Usage</th><th>RecordedDate</th></tr></thead>
+          <tbody id="res-tb"><tr><td colspan="6" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- VISITOR -->
+      <div id="p-visitor" class="hidden">
+        <div class="section">
+          <div class="section-header"><span class="section-title">My Visitor Logs</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Log_ID</th><th>Visitor Name</th><th>Relation</th><th>Contact</th><th>Entry_Time</th><th>Exit_Time</th></tr></thead>
+          <tbody id="vlog-tb"><tr><td colspan="6" style="text-align:center;padding:2rem"><span class="spinner"></span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'http://localhost:5000/api';
+let user = null;
+
+// ── INIT ─────────────────────────────────────
+window.onload = async () => {
+  const stored = sessionStorage.getItem('user');
+  if (!stored) { location.href = 'login.html'; return; }
+  user = JSON.parse(stored);
+
+  // Set sidebar name & avatar
+  document.getElementById('s-name').textContent    = user.First_Name + ' ' + user.Last_Name;
+  document.getElementById('s-avatar').textContent  = user.First_Name?.[0] || 'S';
+  document.getElementById('room-badge').textContent = `Room ${user.RoomNumber || '—'} • ${user.HostelName || '—'}`;
+  document.getElementById('c-sid').value = user.StudentID;
+  document.getElementById('c-rid').value = user.RoomID || '';
+  document.getElementById('p-sid').value = user.StudentID;
+
+  loadDash();
+};
+
+// ── NAVIGATION ───────────────────────────────
+const panels = ['dash','profile','room','fee','complaint','payment','resource','visitor'];
+const titles  = { dash:'Dashboard', profile:'My Profile', room:'Room Details', fee:'Hostel Fee', complaint:'Complaints', payment:'Payments', resource:'Resource Usage', visitor:'Visitor Log' };
+
+function show(panel, el) {
+  panels.forEach(p => document.getElementById('p-'+p).classList.add('hidden'));
+  document.getElementById('p-'+panel).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = titles[panel];
+  const loaders = { profile: loadProfile, room: loadRoom, fee: loadFees, complaint: loadComplaints, payment: loadPayments, resource: loadResources, visitor: loadVisitors };
+  if (loaders[panel]) loaders[panel]();
+}
+
+// ── HELPERS ──────────────────────────────────
+function badge(val) {
+  const map = { Open:'b-open', Closed:'b-closed', Pending:'b-pending', Paid:'b-paid', Occupied:'b-occupied', Available:'b-available', High:'b-high', Medium:'b-medium', Low:'b-low' };
+  return `<span class="badge ${map[val]||''}">${val}</span>`;
+}
+async function api(path) {
+  const r = await fetch(BASE + path);
+  return r.json();
+}
+async function post(path, body) {
+  const r = await fetch(BASE + path, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  return r.json();
+}
+
+// ── DASHBOARD ────────────────────────────────
+async function loadDash() {
+  try {
+    const [cData, pData, vData] = await Promise.all([
+      api(`/complaints?student_id=${user.StudentID}`),
+      api(`/payments?student_id=${user.StudentID}`),
+      api(`/visitor-logs?student_id=${user.StudentID}`)
+    ]);
+
+    const complaints = cData.data || [];
+    const payments   = pData.data || [];
+    const visits     = vData.data || [];
+    const open       = complaints.filter(c => c.Status === 'Open');
+    const lastPay    = payments[0];
+
+    document.getElementById('d-room').textContent       = user.RoomNumber || '—';
+    document.getElementById('d-complaints').textContent  = open.length;
+    document.getElementById('d-payment').textContent     = lastPay ? '₹' + Number(lastPay.Amount).toLocaleString() : '—';
+    document.getElementById('d-visitors').textContent    = visits.length;
+
+    if (open.length > 0) {
+      document.getElementById('dash-alert').innerHTML = `<div class="alert alert-warn">⚠️ You have ${open.length} open complaint(s) awaiting resolution.</div>`;
+    }
+
+    document.getElementById('dash-complaints-tb').innerHTML = complaints.slice(0,3).map(c =>
+      `<tr><td class="td-main">${c.ComplaintID}</td><td>${c.Category}</td><td>${badge(c.Priority)}</td><td>${badge(c.Status)}</td></tr>`
+    ).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--text3)">No complaints</td></tr>`;
+
+    document.getElementById('dash-payments-tb').innerHTML = payments.slice(0,3).map(p =>
+      `<tr><td class="td-main">${p.PaymentID}</td><td>₹${Number(p.Amount).toLocaleString()}</td><td>${p.PaymentType}</td><td>${badge(p.Status)}</td></tr>`
+    ).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--text3)">No payments</td></tr>`;
+
+  } catch (e) {
+    document.getElementById('dash-alert').innerHTML = `<div class="alert alert-error">❌ Cannot connect to backend. Make sure the server is running.</div>`;
+  }
+}
+
+// ── PROFILE ──────────────────────────────────
+async function loadProfile() {
+  const data = await api(`/students/${user.StudentID}`);
+  const s = data.data;
+  document.getElementById('pro-avatar').textContent  = s.First_Name?.[0];
+  document.getElementById('pro-fullname').textContent = s.First_Name + ' ' + s.Last_Name;
+  document.getElementById('pro-sub').textContent     = `StudentID: ${s.StudentID} • Year ${s.Year} • ${s.Course}`;
+  document.getElementById('pro-grid').innerHTML = [
+    ['First Name', s.First_Name], ['Last Name', s.Last_Name],
+    ['Email', s.Email], ['Phone', s.Phone],
+    ['Date of Birth', s.Date_of_Birth?.split('T')[0]], ['Course', s.Course],
+    ['Department', s.Department], ['Year', s.Year],
+    ['Room ID', s.RoomID], ['Hostel', s.HostelName]
+  ].map(([l,v]) => `<div class="info-item"><div class="lbl">${l}</div><div class="val">${v||'—'}</div></div>`).join('');
+}
+
+// ── ROOM ─────────────────────────────────────
+async function loadRoom() {
+  if (!user.RoomID) { document.getElementById('room-grid').innerHTML = '<div class="text-muted">No room assigned.</div>'; return; }
+  const [rData, bData] = await Promise.all([api(`/rooms/${user.RoomID}`), api(`/beds?room_id=${user.RoomID}`)]);
+  const r = rData.data;
+  document.getElementById('room-status-badge').textContent = r.Status;
+  document.getElementById('room-grid').innerHTML = [
+    ['Room ID', r.RoomID], ['Room Number', r.RoomNumber],
+    ['Floor', r.Floor], ['Capacity', r.Capacity + ' Beds'],
+    ['Room Type', r.Room_Type], ['Status', r.Status],
+    ['Monthly Rent', '₹' + Number(r.Monthly_Rent).toLocaleString()], ['Hostel', r.HostelName]
+  ].map(([l,v]) => `<div class="info-item"><div class="lbl">${l}</div><div class="val">${v||'—'}</div></div>`).join('');
+  document.getElementById('beds-tb').innerHTML = (bData.data||[]).map(b =>
+    `<tr><td class="td-main">${b.Bed_Number}</td><td>${b.Bed_Type}</td><td>${badge(b.Status)}</td></tr>`
+  ).join('');
+}
+
+// ── FEES ─────────────────────────────────────
+async function loadFees() {
+  const data = await api('/hostel-fees');
+  document.getElementById('fee-tb').innerHTML = (data.data||[]).map(f =>
+    `<tr><td class="td-main">${f.FeeID}</td><td>${f.Fee_Type}</td><td class="text-accent fw-6">₹${Number(f.Amount).toLocaleString()}</td><td>${f.Due_Date?.split('T')[0]}</td><td>₹${f.Fine}</td></tr>`
+  ).join('');
+}
+
+// ── COMPLAINTS ───────────────────────────────
+async function loadComplaints() {
+  const data = await api(`/complaints?student_id=${user.StudentID}`);
+  const list = data.data || [];
+  const open = list.filter(c => c.Status === 'Open').length;
+  document.getElementById('c-count-badge').textContent = `${open} Active`;
+  document.getElementById('my-complaints-tb').innerHTML = list.map(c =>
+    `<tr><td class="td-main">${c.ComplaintID}</td><td>${c.Category}</td><td>${c.Description}</td><td>${c.DateFiled?.split('T')[0]}</td><td>${badge(c.Priority)}</td><td>${badge(c.Status)}</td></tr>`
+  ).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--text3)">No complaints raised yet</td></tr>`;
+}
+
+async function raiseComplaint() {
+  const desc = document.getElementById('c-desc').value.trim();
+  if (!desc) { alert('Please enter a description.'); return; }
+  const btn = document.getElementById('c-btn');
+  btn.innerHTML = '<span class="spinner"></span> Submitting...'; btn.disabled = true;
+  const res = await post('/complaints', {
+    StudentID: user.StudentID, RoomID: user.RoomID,
+    Category: document.getElementById('c-cat').value,
+    Priority: document.getElementById('c-pri').value,
+    Description: desc
+  });
+  btn.innerHTML = 'Submit Complaint →'; btn.disabled = false;
+  if (res.success) {
+    document.getElementById('c-alert').innerHTML = `<div class="alert alert-success">✅ Complaint #${res.ComplaintID} raised successfully!</div>`;
+    document.getElementById('c-desc').value = '';
+    loadComplaints();
+  } else {
+    document.getElementById('c-alert').innerHTML = `<div class="alert alert-error">❌ ${res.error}</div>`;
+  }
+}
+
+// ── PAYMENTS ─────────────────────────────────
+async function loadPayments() {
+  const data = await api(`/payments?student_id=${user.StudentID}`);
+  document.getElementById('pay-tb').innerHTML = (data.data||[]).map(p =>
+    `<tr><td class="td-main">${p.PaymentID}</td><td>₹${Number(p.Amount).toLocaleString()}</td><td>${p.PaymentDate?.split('T')[0]}</td><td>${p.PaymentType}</td><td>${badge(p.Status)}</td><td class="mono text-xs">${p.Transaction_ID}</td></tr>`
+  ).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--text3)">No payments found</td></tr>`;
+}
+
+async function makePayment() {
+  const amt = document.getElementById('p-amt').value;
+  if (!amt || parseFloat(amt) <= 0) { alert('Enter a valid amount.'); return; }
+  const btn = document.getElementById('p-btn');
+  btn.innerHTML = '<span class="spinner"></span> Processing...'; btn.disabled = true;
+  const res = await post('/payments', {
+    StudentID: user.StudentID, Amount: parseFloat(amt),
+    PaymentType: document.getElementById('p-type').value, Status: 'Pending'
+  });
+  btn.innerHTML = 'Submit Payment →'; btn.disabled = false;
+  if (res.success) {
+    document.getElementById('p-alert').innerHTML = `<div class="alert alert-success">✅ Payment recorded! Transaction ID: <strong>${res.Transaction_ID}</strong></div>`;
+    document.getElementById('p-amt').value = '';
+    loadPayments();
+  } else {
+    document.getElementById('p-alert').innerHTML = `<div class="alert alert-error">❌ ${res.error}</div>`;
+  }
+}
+
+// ── RESOURCES ────────────────────────────────
+async function loadResources() {
+  if (!user.RoomID) return;
+  const data = await api(`/resource-usage?room_id=${user.RoomID}`);
+  const list = data.data || [];
+  if (!list.length) { document.getElementById('res-bars').innerHTML = '<div class="text-muted">No resource data available.</div>'; return; }
+  const r = list[0];
+  const maxE = 200, maxW = 500, maxI = 100;
+  document.getElementById('res-bars').innerHTML = `
+    <div class="res-row"><div class="res-lbl">⚡ Electricity</div><div style="flex:1"><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(r.ElectricityUnits/maxE*100,100)}%"></div></div></div><div class="res-val">${r.ElectricityUnits} kWh</div></div>
+    <div class="res-row"><div class="res-lbl">💧 Water</div><div style="flex:1"><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(r.WaterUnits/maxW*100,100)}%;background:var(--accent2)"></div></div></div><div class="res-val" style="color:var(--accent2)">${r.WaterUnits} L</div></div>
+    <div class="res-row"><div class="res-lbl">🌐 Internet</div><div style="flex:1"><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(r.Internet_Usage/maxI*100,100)}%;background:var(--accent3)"></div></div></div><div class="res-val" style="color:var(--accent3)">${r.Internet_Usage} GB</div></div>`;
+  document.getElementById('res-tb').innerHTML = list.map(u =>
+    `<tr><td class="td-main">${u.UsageID}</td><td>${u.RoomID}</td><td>${u.ElectricityUnits}</td><td>${u.WaterUnits}</td><td>${u.Internet_Usage}</td><td>${u.RecordedDate?.split('T')[0]}</td></tr>`
+  ).join('');
+}
+
+// ── VISITORS ─────────────────────────────────
+async function loadVisitors() {
+  const data = await api(`/visitor-logs?student_id=${user.StudentID}`);
+  document.getElementById('vlog-tb').innerHTML = (data.data||[]).map(v =>
+    `<tr><td class="td-main">${v.Log_ID}</td><td>${v.VisitorName}</td><td>${v.Relation_to_Student}</td><td>${v.Contact}</td><td>${v.Entry_Time?.replace('T',' ').slice(0,16)}</td><td>${v.Exit_Time?.replace('T',' ').slice(0,16)||'—'}</td></tr>`
+  ).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--text3)">No visitor logs found</td></tr>`;
+}
+
+function logout() { sessionStorage.clear(); location.href = 'login.html'; }
+</script>
+</body>
+</html>

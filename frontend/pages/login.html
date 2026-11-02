@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Login — HostelOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    body{background:linear-gradient(135deg,#0A0E1A,#111827,#0D1B2E);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2.4rem;width:100%;max-width:430px;box-shadow:0 25px 60px rgba(0,0,0,.5);}
+    .card h2{font-size:1.55rem;font-weight:700;margin-bottom:.4rem;}
+    .subtitle{color:var(--text2);font-size:.88rem;margin-bottom:1.8rem;}
+    .role-tabs{display:flex;background:var(--surface2);border-radius:8px;padding:4px;gap:4px;margin-bottom:1.4rem;}
+    .tab{flex:1;padding:.48rem;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:'Sora',sans-serif;font-size:.8rem;font-weight:500;transition:all .2s;}
+    .tab.active{background:var(--accent);color:#000;font-weight:700;}
+    .error-box{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--danger);padding:.75rem 1rem;border-radius:8px;font-size:.84rem;margin-bottom:1rem;}
+    .back{display:block;text-align:center;margin-top:1rem;font-size:.82rem;color:var(--text3);cursor:pointer;}
+    .back:hover{color:var(--accent);}
+  </style>
+</head>
+<body>
+<div>
+  <div class="card">
+    <h2>Welcome Back 👋</h2>
+    <div class="subtitle">Sign in to your HostelOS account</div>
+    <div class="role-tabs">
+      <button class="tab" id="tab-student" onclick="setRole('student')">🎓 Student</button>
+      <button class="tab" id="tab-admin"   onclick="setRole('admin')">⚙️ Admin</button>
+      <button class="tab" id="tab-staff"   onclick="setRole('staff')">🔧 Staff</button>
+    </div>
+    <div class="error-box" id="err"></div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-control" id="email" type="email" placeholder="ananya@gmail.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-control" id="password" type="password" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" id="login-btn" style="width:100%;padding:.78rem;font-size:.92rem;" onclick="doLogin()">
+      Sign In →
+    </button>
+    <div style="text-align:center;margin-top:.9rem;font-size:.78rem;color:var(--text3);">
+      Demo: use emails from your SQL inserts (e.g. ananya@gmail.com)
+    </div>
+  </div>
+  <a class="back" href="../index.html">← Back to Home</a>
+</div>
+
+<script>
+  const BASE = 'http://localhost:5000/api';
+  let role = 'student';
+
+  // Auto-select tab from URL param
+  const urlRole = new URLSearchParams(location.search).get('role');
+  if (urlRole) setRole(urlRole);
+  else setRole('student');
+
+  function setRole(r) {
+    role = r;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + r).classList.add('active');
+    // Prefill demo credentials
+    const demos = {
+      student: 'ananya@gmail.com',
+      staff:   'rajesh@hostel.com',
+      admin:   'admin@hostel.com'
+    };
+    document.getElementById('email').value = demos[r] || '';
+  }
+
+  async function doLogin() {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('login-btn');
+    const errBox   = document.getElementById('err');
+
+    if (!email) { showErr('Please enter your email.'); return; }
+
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    btn.disabled  = true;
+    errBox.style.display = 'none';
+
+    try {
+      const res = await fetch(`${BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      });
+      const data = await res.json();
+
+      if (!data.success) { showErr(data.error || 'Login failed'); return; }
+
+      // Save user info to sessionStorage so dashboards can read it
+      sessionStorage.setItem('user', JSON.stringify(data.user));
+      sessionStorage.setItem('role', role);
+
+      // Redirect to role dashboard
+      const redirect = {
+        student: 'student-dashboard.html',
+        admin:   'admin-dashboard.html',
+        staff:   'staff-dashboard.html'
+      };
+      location.href = redirect[role];
+
+    } catch (e) {
+      showErr('Cannot reach server. Is the backend running? (npm run dev in backend folder)');
+    } finally {
+      btn.innerHTML = 'Sign In →';
+      btn.disabled  = false;
+    }
+  }
+
+  function showErr(msg) {
+    const e = document.getElementById('err');
+    e.textContent = '⚠️ ' + msg;
+    e.style.display = 'block';
+  }
+
+  // Allow Enter key
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>
