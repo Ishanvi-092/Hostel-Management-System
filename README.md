@@ -1,4 +1,4 @@
-Smart Hostel Resource & Complaint Management System
+# Smart Hostel Resource & Complaint Management System
 
 A database-driven hostel management platform designed to simplify and centralize hostel operations, including student records, room allocation, complaint handling, fee management, staff coordination, visitor tracking, and resource monitoring.
 
